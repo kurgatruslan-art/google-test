@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кто хочет стать ИИ-Миллионером?</title>
+    <!-- Подключение Chart.js для гистограммы результатов -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        h2 {
+            color: #00e676;
+        }
+        .btn {
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: #111;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+        input[type="text"] {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            border: 2px solid #ffd700;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            width: 60%;
+            margin-bottom: 20px;
+            text-align: center;
+            outline: none;
+        }
+        /* Сетка вопросов */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .option-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #00e676;
+            color: #fff;
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+        .option-btn:hover {
+            background: rgba(0, 230, 118, 0.2);
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+        }
+        .option-btn.correct {
+            background: #00e676 !important;
+            color: #000;
+            font-weight: bold;
+        }
+        .option-btn.wrong {
+            background: #ff1744 !important;
+            color: #fff;
+        }
+        /* Таймер и прогресс */
+        .timer-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.4);
+            border: 4px solid #ff1744;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px auto;
+            color: #ff1744;
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .progress-bar {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        .qr-placeholder {
+            margin: 20px auto;
+            width: 180px;
+            height: 180px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hidden {
+            display: none !important;
+        }
+        /* Денежная шкала "Миллионера" */
+        .money-list {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+        .money-step {
+            color: #888;
+        }
+        .money-step.active {
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 5px #ffd700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- СЛАЙД 1: СТАРТ -->
+    <div id="slide-start">
+        <h1>ИИ-Миллионер 🤖</h1>
+        <p>Приветствуем учителей Татарстана! Проверьте свои знания после курсов по искусственному интеллекту.</p>
+        
+        <div class="qr-placeholder">
+            <!-- Сгенерированный QR-код, ведущий на текущую страницу -->
+            <img id="qr-code" src="" alt="QR Code для входа" style="width:100%; height:100%;">
+        </div>
+        <p style="font-size: 0.9rem; color: #aaa;">Сканируйте QR-код со смартфона для быстрого входа</p>
+
+        <div>
+            <input type="text" id="nickname" placeholder="Введите ваш никнейм или ФИО" maxlength="25">
+        </div>
+        <button class="btn" onclick="startQuiz()">Войти в игру</button>
+    </div>
+
+    <!-- СЛАЙД 2: ИГРА -->
+    <div id="slide-game" class="hidden">
+        <div class="progress-bar">Вопрос <span id="current-q-num">1</span> из 10</div>
+        <div class="money-list">
+            Текущая стоимость вопроса: <span id="question-value" style="color: #ffd700; font-weight: bold;">100 000 ₽</span>
+        </div>
+        
+        <div class="timer-container" id="timer">10</div>
+        
+        <h2 id="question-text">Текст вопроса...</h2>
+        
+        <div class="options-grid" id="options-container">
+            <!-- Кнопки вариантов ответов добавятся динамически -->
+        </div>
+    </div>
+
+    <!-- СЛАЙД 3: РЕЗУЛЬТАТЫ -->
+    <div id="slide-results" class="hidden">
+        <h2>Игра окончена!</h2>
+        <p id="result-message" style="font-size: 1.3rem; margin-bottom: 20px;"></p>
+        
+        <h3>Рейтинг участников (Топ результатов)</h3>
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 25px;">
+            <canvas id="resultsChart" width="400" height="250"></canvas>
+        </div>
+        
+        <button class="btn" onclick="restartQuiz()">Играть снова</button>
+    </div>
+</div>
+
+<script>
+    // Вопросы для учителей (10 вопросов, возрастающая сложность/стоимость)
+    const questions = [
+        {
+            q: "Что из перечисленного является генеративной нейросетью для работы с текстом?",
+            a: ["YandexGPT", "Excel", "Photoshop", "Python"],
+            correct: 0,
+            value: "100 000 ₽"
+        },
+        {
+            q: "Как называется короткий текстовый запрос или инструкция для ИИ?",
+            a: ["Парсинг", "Промпт", "Тег", "Скрипт"],
+            correct: 1,
+            value: "200 000 ₽"
+        },
+        {
+            q: "Какая технология лежит в основе современных языковых моделей (LLM)?",
+            a: ["Блокчейн", "Архитектура Transformer", "Реляционные БД", "Линейный поиск"],
+            correct: 1,
+            value: "300 000 ₽"
+        },
+        {
+            q: "Какая задача ИИ лучше всего подойдёт учителю для экономии времени при подготовке к уроку?",
+            a: ["Генерация тестовых заданий", "Проведение родительского собрания", "Заполнение классного журнала вручную", "Уборка класса"],
+            correct: 0,
+            value: "500 000 ₽"
+        },
+        {
+            q: "Что такое 'галлюцинация' нейросети?",
+            a: ["Выключение сервера из-за перегрева", "Выдача уверенного, но ложного или вымышленного ответа", "Генерация слишком ярких картинок", "Зависание интерфейса пользователя"],
+            correct: 1,
+            value: "1 000 000 ₽"
+        },
+        {
+            q: "Какая нейросеть Сбера умеет генерировать изображения по текстовому описанию?",
+            a: ["GigaChat", "Kandinsky", "YaArt", "Midjourney"],
+            correct: 1,
+            value: "2 000 000 ₽"
+        },
+        {
+            q: "Какой процесс используется для дообучения готовой модели ИИ на специфических школьных данных?",
+            a: ["Предобучение", "Файн-тюнинг (Fine-tuning)", "Компиляция", "Кэширование"],
+            correct: 1,
+            value: "3 000 000 ₽"
+        },
+        {
+            q: "Какое направление ИИ занимается распознаванием лиц и объектов на видео?",
+            a: ["Computer Vision (Компьютерное зрение)", "Data Science", "Natural Language Processing", "Речевая аналитика"],
+            correct: 0,
+            value: "5 000 000 ₽"
+        },
+        {
+            q: "Что из этого является важным этическим правилом при использовании ИИ учителем?",
+            a: ["Всегда проверять факты за ИИ", "Выдавать сгенерированный ИИ текст за свою научную работу", "Загружать в ИИ персональные данные учеников без согласия", "Использовать ИИ скрытно от администрации"],
+            correct: 0,
+            value: "8 000 000 ₽"
+        },
+        {
+            q: "Какая ИИ-технология преобразует устную речь учителя на уроке в печатный текст?",
+            a: ["Speech-to-Text (STT)", "Text-to-Speech (TTS)", "Computer Vision", "Deepfake"],
+            correct: 0,
+            value: "10 000 000 ₽"
+        }
+    ];
+
+    // Имитация базы данных результатов (демо-данные для красивой гистограммы)
+    let mockLeaderboard = [
+        { name: "Ильдар Саматович (лицей)", score: 9 },
+        { name: "Гульназ Рамилевна (гимназия)", score: 8 },
+        { name: "Мария Ивановна", score: 6 },
+        { name: "Алексей Петрович", score: 5 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 10;
+    let userNickname = "";
+    let canAnswer = true;
+
+    // Установка динамического QR-кода при загрузке страницы
+    window.onload = function() {
+        const currentUrl = window.location.href;
+        // Используем публичный API для генерации QR кода текущей страницы
+        document.getElementById('qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
+    };
+
+    function startQuiz() {
+        const nickInput = document.getElementById('nickname').value.trim();
+        userNickname = nickInput || "Анонимный Учитель";
+        
+        document.getElementById('slide-start').classList.add('hidden');
+        document.getElementById('slide-game').classList.remove('hidden');
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        showQuestion();
+    }
+
+    function showQuestion() {
+        canAnswer = true;
+        timeLeft = 10;
+        document.getElementById('timer').innerText = timeLeft;
+        document.getElementById('timer').style.borderColor = "#ff1744";
+        document.getElementById('timer').style.color = "#ff1744";
+        
+        const qData = questions[currentQuestionIndex];
+        document.getElementById('current-q-num').innerText = currentQuestionIndex + 1;
+        document.getElementById('question-value').innerText = qData.value;
+        document.getElementById('question-text').innerText = qData.q;
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = "";
+        
+        const prefixes = ["A: ", "B: ", "C: ", "D: "];
+        qData.a.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.className = "option-btn";
+            btn.innerText = prefixes[index] + option;
+            btn.onclick = () => checkAnswer(index, btn);
+            container.appendChild(btn);
+        });
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = timeLeft;
+            if (timeLeft <= 3) {
+                document.getElementById('timer').style.borderColor = "#ffaa00";
+                document.getElementById('timer').style.color = "#ffaa00";
+            }
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeout();
+            }
+        }, 1000);
+    }
+
+    function checkAnswer(selectedIndex, clickedBtn) {
+        if (!canAnswer) return;
+        canAnswer = false;
+        clearInterval(timerInterval);
+        
+        const qData = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        
+        if (selectedIndex === qData.correct) {
+            clickedBtn.classList.add('correct');
+            score++;
+        } else {
+            clickedBtn.classList.add('wrong');
+            buttons[qData.correct].classList.add('correct');
+        }
+        
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }, 1500);
+    }
+
+    function handleTimeout() {
+        if (!canAnswer) return;
+        canAnswer = false;
+        
+        const qData = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons[qData.correct].classList.add('correct');
+        
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }, 1500);
+    }
+
+    function endQuiz() {
+        document.getElementById('slide-game').classList.add('hidden');
+        document.getElementById('slide-results').classList.remove('hidden');
+        
+        let prize = "0 ₽";
+        if(score > 0) prize = questions[score - 1].value;
+        
+        document.getElementById('result-message').innerHTML = `Уважаемый(ая) <b>${userNickname}</b>!<br>Вы ответили правильно на <b>${score} из 10 вопросов</b> и заработали <b>${prize}</b>!`;
+        
+        // Добавление текущего результата в рейтинг
+        let currentLeaderboard = [...mockLeaderboard, { name: userNickname, score: score }];
+        // Сортировка по убыванию баллов
+        currentLeaderboard.sort((a, b) => b.score - a.score);
+        
+        renderChart(currentLeaderboard);
+    }
+
+    let myChart = null;
+    function renderChart(data) {
+        const ctx = document.getElementById('resultsChart').getContext('2d');
+        
+        const labels = data.map(item => item.name);
+        const scores = data.map(item => item.score);
+        
+        if (myChart) {
+            myChart.destroy();
+        }
+        
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Правильные ответы (макс. 10)',
+                    data: scores,
+                    backgroundColor: labels.map(l => l === userNickname ? 'rgba(255, 215, 0, 0.8)' : 'rgba(0, 230, 118, 0.6)'),
+                    borderColor: labels.map(l => l === userNickname ? '#ffd700' : '#00e676'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Превращает гистограмму в горизонтальную
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 10,
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#fff' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#fff' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    function restartQuiz() {
+        document.getElementById('slide-results').classList.add('hidden');
+        document.getElementById('slide-start').classList.remove('hidden');
+        document.getElementById('nickname').value = "";
+    }
+</script>
+
+</body>
+</html>
